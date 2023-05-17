@@ -33,13 +33,13 @@ class DataParser(ABC):
         pass
 
 
-class NotionData(DataFetcher, DataParser, ABC):
+class NotionClient(DataFetcher, DataParser, ABC):
     """
     Notion abstract class
     """
     pass
 
-class NotionDataFetcherParser(NotionData):
+class NotionDataClient(NotionClient):
     """
     Implementation of NotionData
     """
@@ -178,18 +178,18 @@ class NotionStatusPoster:
     """
     Notion status poster class
     """
-    def __init__(self, notion_data: NotionData, slack_client: SlackClient):
+    def __init__(self, notion_client: NotionClient, slack_client: SlackClient):
         self.logger = logging.getLogger(__name__)
-        self.notion_data = notion_data
+        self.notion_client = notion_client
         self.slack_client = slack_client
 
     def post_daily_status_to_slack(self):
         """
         Method for posting status
         """
-        notion_data = self.notion_data.fetch_data()
+        notion_data = self.notion_client.fetch_data()
 
-        page = self.notion_data.parse_response(notion_data)
+        page = self.notion_client.parse_response(notion_data)
         thread_id = self.slack_client.get_status_thread_id()
 
         if thread_id and page != "Note: This is an automated message 😋":
@@ -210,7 +210,7 @@ def lambda_handler(event, context):
     logging.basicConfig(level=logging.INFO)
     notion_page_id = os.environ.get("NOTION_PAGE_ID")
     notion_url = os.environ.get("NOTION_URL")
-    notion_data_fetcher_parser = NotionDataFetcherParser(notion_page_id, notion_url)
+    notion_data_fetcher_parser = NotionDataClient(notion_page_id, notion_url)
     slack_client = SlackStatusClient(os.environ.get("USER_TOKEN"))
     slack_client.channel_id = os.environ.get("CHANNEL_ID")
     slack_client.daily_status_filter_text = "Good morning! Don’t forget to post your update in thread."
