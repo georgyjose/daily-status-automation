@@ -33,13 +33,13 @@ class DataParser(ABC):
         pass
 
 
-class NotionClient(DataFetcher, DataParser, ABC):
+class NotionBaseClient(DataFetcher, DataParser, ABC):
     """
     Notion abstract class
     """
     pass
 
-class NotionDataClient(NotionClient):
+class NotionClient(NotionBaseClient):
     """
     Implementation of NotionData
     """
@@ -126,7 +126,7 @@ class StatusReader(ABC):
         pass
 
 
-class SlackClient(StatusPoster, StatusReader, ABC):
+class SlackBaseClient(StatusPoster, StatusReader, ABC):
     """
     Abstract class for slack client
     """
@@ -138,7 +138,7 @@ class SlackClient(StatusPoster, StatusReader, ABC):
         self.daily_status_filter_pod_name = None
 
 
-class SlackStatusClient(SlackClient):
+class SlackStatusClient(SlackBaseClient):
     """
     Implementation of SlackClient
     """
@@ -178,7 +178,7 @@ class NotionStatusPoster:
     """
     Notion status poster class
     """
-    def __init__(self, notion_client: NotionClient, slack_client: SlackClient):
+    def __init__(self, notion_client: NotionBaseClient, slack_client: SlackBaseClient):
         self.logger = logging.getLogger(__name__)
         self.notion_client = notion_client
         self.slack_client = slack_client
@@ -210,13 +210,13 @@ def lambda_handler(event, context):
     logging.basicConfig(level=logging.INFO)
     notion_page_id = os.environ.get("NOTION_PAGE_ID")
     notion_url = os.environ.get("NOTION_URL")
-    notion_data_fetcher_parser = NotionDataClient(notion_page_id, notion_url)
+    notion_client = NotionClient(notion_page_id, notion_url)
     slack_client = SlackStatusClient(os.environ.get("USER_TOKEN"))
     slack_client.channel_id = os.environ.get("CHANNEL_ID")
     slack_client.daily_status_filter_text = "Good morning! Don’t forget to post your update in thread."
     slack_client.daily_status_filter_pod_name = "learningpod"
 
-    notion_status_poster = NotionStatusPoster(notion_data_fetcher_parser, slack_client)
+    notion_status_poster = NotionStatusPoster(notion_client, slack_client)
     notion_status_poster.post_daily_status()
 
 
