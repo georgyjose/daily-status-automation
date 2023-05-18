@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 
 
-class APIClient(ABC):
+class IAPIClient(ABC):
 
     @abstractmethod
     def request(self, url, method, data=None):

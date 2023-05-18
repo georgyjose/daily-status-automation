@@ -1,12 +1,12 @@
 import json
-
 import requests
 
-from apis.interfaces.client import APIClient
+from apis.interfaces import IAPIClient
 
 
-class NoAuthAPIClient(APIClient):
-    host = None
+class NoAuthIAPIClient(IAPIClient):
+    def __init__(self, host):
+        self.host = host
 
     def get_auth_header(self):
         return None
@@ -14,6 +14,7 @@ class NoAuthAPIClient(APIClient):
     def request(self, url: str, method: str,
                 data: dict = None, timeout: int = 5):
         try:
+            print(f'sending {method} request to {url} using data {data}')
             response = requests.request(method=method,
                                         url=url,
                                         json=data,
