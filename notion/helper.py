@@ -2,8 +2,6 @@ import os
 
 from notion.interfaces import INotionAPIClient, INotionDataParser
 
-AUTOMATED_MESSAGE = "Note: This is an automated message 😋"
-
 
 class NotionDataParser(INotionDataParser):
     def _format_text(self, text, value_type):
@@ -11,7 +9,7 @@ class NotionDataParser(INotionDataParser):
             return text
         elif value_type == 'bulleted_list':
             return f"•   {text}"
-        elif value_type == 'page':
+        else:
             return None
 
     def _parse_text(self, title):
@@ -37,15 +35,14 @@ class NotionDataParser(INotionDataParser):
             text = self._format_text(text, value_type)
             if text:
                 page.append(text)
-        page.append(AUTOMATED_MESSAGE)
         page_string = '\n'.join(page)
         return page_string
 
 
 class NotionAPIClient(INotionAPIClient):
 
-    host = 'https://energetic-tuberose-21a.notion.site'
-    notion_page_id = 'be0fb23c-1f88-44a8-80fb-1379727c74ee'
+    host = os.environ.get('NOTION_HOST')
+    notion_page_id = os.environ.get('NOTION_PAGE_ID')
 
     def __init__(self, api_client):
         self.api_client = api_client
