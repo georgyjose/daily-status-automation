@@ -19,6 +19,8 @@ DAILY_STATUS_FILTER_POD_NAME = "learningpod"
 AUTOMATED_MESSAGE = "Note: This is an automated message :yum:"
 
 
+"""This is a test commit"""
+
 class Notion(ABC):
     @abstractmethod
     def parse_response(self, notion_url):
